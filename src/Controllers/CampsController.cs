@@ -86,7 +86,7 @@ namespace CoreCodeCamp.Controllers
         {
             try
             {
-                var existingCamp = _campRepository.GetCampAsync(model.Moniker);
+                var existingCamp = await _campRepository.GetCampAsync(model.Moniker);
 
                 if(existingCamp != null) { return BadRequest("Moniker in use");}
 
@@ -113,6 +113,7 @@ namespace CoreCodeCamp.Controllers
 
             return BadRequest();
         }
+
         [HttpPut("{moniker}")]
         public async Task<ActionResult<CampModel>> Put(string moniker, CampModel model)
         {
@@ -137,6 +138,31 @@ namespace CoreCodeCamp.Controllers
             }
 
             return BadRequest();
+        }
+
+        [HttpDelete("{moniker}")]
+        public async Task<IActionResult> Delete(string moniker)
+        {
+            try
+            {
+                var oldCamp = await _campRepository.GetCampAsync(moniker);
+
+                if (oldCamp == null) { return NotFound("Moniker do not exist."); }
+
+                _campRepository.Delete(oldCamp);
+
+                if (await _campRepository.SaveChangesAsync())
+                {
+                    return Ok();
+                }
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+
+            return BadRequest("Failed to delete the camp.");
         }
     }
 }
