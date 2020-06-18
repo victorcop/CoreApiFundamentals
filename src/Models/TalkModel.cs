@@ -1,6 +1,6 @@
 ﻿namespace CoreCodeCamp.Models
 {
-    public class TalksModel
+    public class TalkModel
     {
         public int TalkId { get; set; }
         public string Title { get; set; }

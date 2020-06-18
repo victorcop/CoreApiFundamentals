@@ -4,6 +4,7 @@ using CoreCodeCamp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -26,39 +27,75 @@ namespace CoreCodeCamp.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TalksModel>>> Get(string moniker)
+        public async Task<ActionResult<IEnumerable<TalkModel>>> Get(string moniker)
         {
             try
             {
-                var talks = await _campRepository.GetTalksByMonikerAsync(moniker);
+                var talks = await _campRepository.GetTalksByMonikerAsync(moniker, true);
 
                 if (talks == null) return NotFound();
-                return Ok(_mapper.Map<IEnumerable<TalksModel>>(talks));
+                return Ok(_mapper.Map<IEnumerable<TalkModel>>(talks));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
-            
+
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<TalksModel>> Get(string moniker, int id)
+        public async Task<ActionResult<TalkModel>> Get(string moniker, int id)
         {
             try
             {
-                var talk = await _campRepository.GetTalkByMonikerAsync(moniker, id);
+                var talk = await _campRepository.GetTalkByMonikerAsync(moniker, id, true);
 
                 if (talk == null) return NotFound();
-                return Ok(_mapper.Map<TalksModel>(talk));
+                return Ok(_mapper.Map<TalkModel>(talk));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
 
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<TalkModel>> Post(string moniker, TalkModel model)
+        {
+            try
+            {
+                var camp = await _campRepository.GetCampAsync(moniker);
+
+                if (camp == null) { return BadRequest("Camp does not exist."); }
+
+                var talk = _mapper.Map<Talk>(model);
+
+                talk.Camp = camp;
+
+                if (model.Speaker == null) { return BadRequest("Speaker ID is required."); }
+                var speaker = await _campRepository.GetSpeakerAsync(model.Speaker.SpeakerId);
+                if (speaker == null) { return BadRequest("Speaker could not be found."); }
+
+                talk.Speaker = speaker;
+
+                _campRepository.Add(talk);
+
+                if (await _campRepository.SaveChangesAsync())
+                {
+                    var url = _linkGenerator.GetPathByAction(HttpContext,"Get", values: new { moniker = moniker, id = talk .TalkId});
+
+                    return Created(url, _mapper.Map<TalkModel>(talk));
+                }
+                else 
+                {
+                    return BadRequest("Failed to save new talk.");
+                }                
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Database Failure {e}");
+            }
         }
     }
 }
