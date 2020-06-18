@@ -30,10 +30,10 @@ namespace CoreCodeCamp.Controllers
         {
             try
             {
-                var takls = await _campRepository.GetTalksByMonikerAsync(moniker);
+                var talks = await _campRepository.GetTalksByMonikerAsync(moniker);
 
-                if (takls == null) return NotFound();
-                return Ok(_mapper.Map<IEnumerable<TalksModel>>(takls));
+                if (talks == null) return NotFound();
+                return Ok(_mapper.Map<IEnumerable<TalksModel>>(talks));
             }
             catch (System.Exception)
             {
@@ -41,6 +41,24 @@ namespace CoreCodeCamp.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
             
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<TalksModel>> Get(string moniker, int id)
+        {
+            try
+            {
+                var talk = await _campRepository.GetTalkByMonikerAsync(moniker, id);
+
+                if (talk == null) return NotFound();
+                return Ok(_mapper.Map<TalksModel>(talk));
+            }
+            catch (System.Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+
         }
     }
 }
