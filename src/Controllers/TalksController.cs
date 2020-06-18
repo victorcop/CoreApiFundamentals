@@ -83,18 +83,52 @@ namespace CoreCodeCamp.Controllers
 
                 if (await _campRepository.SaveChangesAsync())
                 {
-                    var url = _linkGenerator.GetPathByAction(HttpContext,"Get", values: new { moniker = moniker, id = talk .TalkId});
+                    var url = _linkGenerator.GetPathByAction(HttpContext, "Get", values: new { moniker = moniker, id = talk.TalkId });
 
                     return Created(url, _mapper.Map<TalkModel>(talk));
                 }
-                else 
+                else
                 {
                     return BadRequest("Failed to save new talk.");
-                }                
+                }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Database Failure {e}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<TalkModel>> Put(string moniker, int id, TalkModel model)
+        {
+            try
+            {
+                var oldTalk = await _campRepository.GetTalkByMonikerAsync(moniker, id, true);
+                if (oldTalk == null) { return NotFound("Talk do not exist."); }
+
+                _mapper.Map(model, oldTalk);
+
+                if (model.Speaker != null)
+                {
+                    var speaker = await _campRepository.GetSpeakerAsync(model.Speaker.SpeakerId);
+                    if (speaker != null)
+                    {
+                        oldTalk.Speaker = speaker;
+                    }
+                }
+
+                if (await _campRepository.SaveChangesAsync())
+                {
+                    return _mapper.Map<TalkModel>(oldTalk);
+                }
+                else
+                {
+                    return BadRequest("Failed to update database");
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
         }
     }
