@@ -23,6 +23,6 @@ namespace CoreCodeCamp.Models
         public string LocationPostalCode { get; set; }
         public string LocationCountry { get; set; }
 
-        public IEnumerable<TalksModel> Talks { get; set; }
+        public IEnumerable<TalkModel> Talks { get; set; }
     }
 }

@@ -39,7 +39,6 @@ namespace CoreCodeCamp.Controllers
             }
             catch (Exception)
             {
-
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
             
@@ -58,7 +57,6 @@ namespace CoreCodeCamp.Controllers
             }
             catch (Exception)
             {
-
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
         }
@@ -76,7 +74,6 @@ namespace CoreCodeCamp.Controllers
             }
             catch (Exception)
             {
-
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
         }
@@ -107,7 +104,6 @@ namespace CoreCodeCamp.Controllers
             }
             catch (Exception)
             {
-
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
 
@@ -133,7 +129,6 @@ namespace CoreCodeCamp.Controllers
             }
             catch (Exception)
             {
-
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
 
@@ -158,7 +153,6 @@ namespace CoreCodeCamp.Controllers
             }
             catch (Exception)
             {
-
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
 
